@@ -76,6 +76,6 @@ canvas {
 	display: table-row;
 }
 
-#numUsers {
+.users {
 	margin-left: 5.55%;
 }
