@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width user-scalable=no">
+    <title>MMOS</title>
+
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <script src="js/buffer-loader.js"></script>
+    <script src="js/ajax.js"></script>
+    <script src="js/mmos.js"></script>
+    <script src="js/bounds-detection.js"></script>
+  </head>
+  <body>
+
+      
+    <div id="controls">
+
+      <div><a id="playButton" onclick="socket.emit('playpress'); play();"><i class="fa fa-play"></i>play</a></div>
+
+      <span>Tempo: 
+        <span id="showTempo">120</span>BPM
+        <input id="tempo" type="range" min="30.0" max="160.0" step="1" value="120" style="height: 14px; width: 130px">
+      </span>
+      
+      <span>Note Length: 
+        <span id="showNoteLength">0.04</span>ms
+        <input id="noteLength" type="range" min="0.01" max="0.30" step="0.01" value="0.30" style="height: 14px; width: 130px">
+      </span>
+
+    </div>
+
+
+    <div id="container"></div>
+
+
+    <p>users:<span id="numUsers"></span></p>
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io();
+
+      socket.on('userupdate', function (data) {
+        document.getElementById('numUsers').innerHTML = data;
+      });
+
+      // force newcomers in sync
+      socket.on('looptrigger', function () {
+        if (isPlaying === false) {
+          play();
+        }
+      });
+
+      socket.on('new sequence', function (data) {
+        sequence = (data);
+        draw(true);        
+      });
+
+      socket.on('new tempo', function (data) {
+        tempo = data;
+        document.getElementById('showTempo').innerText = tempo;
+        document.getElementById('tempo').value = tempo;
+      });
+
+      socket.on('broadcastedplay', function () {
+        play();
+      });
+    </script>
+   </body>
+</html>

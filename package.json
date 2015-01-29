@@ -1,0 +1,15 @@
+{
+  "name": "mmos",
+  "version": "0.0.1",
+  "main": "mmos-server.js",
+  "scripts": {
+    "start": "node mmos-server.js"
+  },
+  "dependencies": {
+    "body-parser": "*",
+    "express": "4.10.2",
+    "mongoose": "3.8.21",
+    "socket.io": "1.2.0"
+  },
+  "license": "MIT"
+}

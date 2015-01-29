@@ -1,9 +1,7 @@
-# Web Audio Metronome
+Massively Multiplayer Online Sequencer
 
-This application shows how to use a collaboration between a setTimeout scheduler and the Web Audio scheduler to properly implement rock-solid timing for audio applications.
+a syncronized, socket.io powered drum machine
 
-Check it out, feel free to submit issues or requests, fork, submit pull requests, etc.
 
-The live app is at http://webaudiodemos.appspot.com/metronome/index.html.
-
--Chris
+This is a fork of Chris Wilson's brilliant audio schedueling demo:
+https://github.com/cwilso/metronome
