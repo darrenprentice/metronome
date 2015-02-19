@@ -77,7 +77,11 @@ canvas {
   	margin-right: auto ;
 }
 
+<<<<<<< HEAD
 #users {
+=======
+.users {
+>>>>>>> ecb977ad9bb4208e35c7ad06d6e3f970c2b85047
 	margin-left: 5.55%;
 	margin-right: 6.55%;
 }

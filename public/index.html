@@ -28,15 +28,31 @@
       </span>
       
       <span>Note Length: 
-        <span id="showNoteLength">0.04</span>ms
+        <span id="showNoteLength">0.30</span>ms
         <input id="noteLength" type="range" min="0.01" max="0.30" step="0.01" value="0.30" style="height: 14px; width: 130px">
       </span>
 
     </div>
 
 
+<<<<<<< HEAD
     <div id="container" oncontextmenu="return false;">
       
+=======
+    <div id="container"></div>
+
+
+    <p class="users">users: <span id="numUsers"></span></p>
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io();
+
+      socket.on('userupdate', function (data) {
+        document.getElementById('numUsers').innerHTML = data;
+      });
+>>>>>>> ecb977ad9bb4208e35c7ad06d6e3f970c2b85047
 
     </div>
 
