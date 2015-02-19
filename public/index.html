@@ -10,8 +10,10 @@
     
     <script src="js/buffer-loader.js"></script>
     <script src="js/ajax.js"></script>
-    <script src="js/mmos.js"></script>
     <script src="js/bounds-detection.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/socket-client.js"></script>
+    <script src="js/mmos.js"></script>
   </head>
   <body>
 
@@ -33,41 +35,16 @@
     </div>
 
 
-    <div id="container"></div>
+    <div id="container" oncontextmenu="return false;">
+      
+
+    </div>
 
 
-    <p>users:<span id="numUsers"></span></p>
+    <p id="users">
+      users: <span id="numUsers"></span>
+      <span style="float: right;">right click = 32nd note</span>
+    </p>
 
-
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-      var socket = io();
-
-      socket.on('userupdate', function (data) {
-        document.getElementById('numUsers').innerHTML = data;
-      });
-
-      // force newcomers in sync
-      socket.on('looptrigger', function () {
-        if (isPlaying === false) {
-          play();
-        }
-      });
-
-      socket.on('new sequence', function (data) {
-        sequence = (data);
-        draw(true);        
-      });
-
-      socket.on('new tempo', function (data) {
-        tempo = data;
-        document.getElementById('showTempo').innerText = tempo;
-        document.getElementById('tempo').value = tempo;
-      });
-
-      socket.on('broadcastedplay', function () {
-        play();
-      });
-    </script>
    </body>
 </html>

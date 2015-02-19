@@ -14,7 +14,7 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 
 
-mongoose.connect('mongodb://heroku_app33159070:909mt9mc4b55p3v2foqgtiefk6@ds031591.mongolab.com:31591/heroku_app33159070');
+mongoose.connect(/*database url goes here*/);
 
 var schema = mongoose.Schema({
     data: Array,
@@ -30,7 +30,6 @@ io.on('connection', function(socket){
 
 	++numUsers;
 	io.sockets.emit('userupdate', numUsers);
-
 
 	socket.on('new sequence', function (data) {
 		socket.broadcast.emit('new sequence', data);

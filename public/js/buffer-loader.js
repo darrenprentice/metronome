@@ -2,7 +2,7 @@ function BufferLoader(context, urlList, callback) {
 	this.context = context;
     this.urlList = urlList;
     this.onload = callback;
-    this.bufferList = new Array();
+    this.bufferList = [];
     this.loadCount = 0;
 }
 

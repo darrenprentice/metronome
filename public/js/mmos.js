@@ -25,16 +25,16 @@ var notesInQueue = [];      // the notes that have been put into the web audio,
 var noteColor = ["grey", "orange", "yellow"];
 
 var sequence = [
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
-    [0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0],
-    [0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [0,0,1,0,0,0,1,2,0,0,0,0,0,2,2,0],
+    [0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],
     [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
-    [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+    [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]
 ];
 
 
-// First, let's shim the requestAnimationFrame API, with a setTimeout fallback
-window.requestAnimFrame = function(){
+// setTimeout fallback
+(window.requestAnimFrame = function(){
     return  window.requestAnimationFrame ||
     window.webkitRequestAnimationFrame ||
     window.mozRequestAnimationFrame ||
@@ -43,13 +43,24 @@ window.requestAnimFrame = function(){
     function( callback ){
         window.setTimeout(callback, 1000 / 60);
     };
-}();
+}());
+
+var clearSequence = function() {
+    sequence = [
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    ];
+    draw(true);
+};
 
 var getMousePos = function(canvas, evt) {
     var rect = canvas.getBoundingClientRect();
     return {
-      x: evt.clientX - rect.left,
-      y: evt.clientY - rect.top
+        x: evt.clientX - rect.left,
+        y: evt.clientY - rect.top
     };
 };
 
@@ -60,7 +71,7 @@ var nextNote = function() {
     nextNoteTime += 0.25 * secondsPerBeat;    // Add beat length to last beat time
 
     current16thNote += 1;    // Advance the beat number, wrap to zero
-    if (current16thNote == 16) {
+    if (current16thNote === 16) {
         current16thNote = 0;
     }
 };
@@ -77,51 +88,62 @@ var playSound = function(buffer, time) {
 };
 
 
-var scheduleNote = function( beatNumber, time ) {
-    // push the note on the queue, even if we're not playing.
+var scheduleNote = function(beatNumber, time) {
+    var halfBeat = 0.125 * 60.0 / tempo;
+
+    // push the note on the queue, even if not playing.
     notesInQueue.push( { note: beatNumber, time: time } );
 
     if (beatNumber === 0) {
-        socket.emit('loop');
+        socket.emit('loop'); //for syncing new users
     }
 
-    /*function playNote(freq) {
-        var osc = audioContext.createOscillator();
-        osc.connect( audioContext.destination );
-
-        osc.frequency.value = freq;
-
-        osc.start( time );
-        osc.stop( time + noteLength );
-    }*/
-
-    
 
     if (sequence[4][beatNumber] !== 0) {
-        //playNote(261.6);
+
         playSound(bufferLoader.bufferList[0], time);
+
+        if (sequence[4][beatNumber] === 2) {
+            playSound(bufferLoader.bufferList[0], time + halfBeat);
+        }
     }
     if (sequence[3][beatNumber] !== 0) {
-        //playNote(293.7);
+
         playSound(bufferLoader.bufferList[1], time);
+
+        if (sequence[3][beatNumber] === 2) {
+            playSound(bufferLoader.bufferList[1], time + halfBeat);
+        }
     }
     if (sequence[2][beatNumber] !== 0) {
-        //playNote(329.6);
+
         playSound(bufferLoader.bufferList[2], time);
+
+        if (sequence[2][beatNumber] === 2) {
+            playSound(bufferLoader.bufferList[2], time + halfBeat);
+        }
     }
     if (sequence[1][beatNumber] !== 0) {
-        //playNote(349.2);
+
         playSound(bufferLoader.bufferList[3], time);
+
+        if (sequence[1][beatNumber] === 2) {
+            playSound(bufferLoader.bufferList[3], time + halfBeat);
+        }
     }
     if (sequence[0][beatNumber] !== 0) {
-        //playNote(392.0);
+
         playSound(bufferLoader.bufferList[4], time);
+
+        if (sequence[0][beatNumber] === 2) {
+            playSound(bufferLoader.bufferList[4], time + halfBeat);
+        }
     }
 };
 
 var scheduler = function() {
     // while there are notes that will need to play before the next interval, 
-    // schedule them and advance the pointer.
+    // schedule them and advance to next note
     while (nextNoteTime < audioContext.currentTime + scheduleAheadTime ) {
         scheduleNote( current16thNote, nextNoteTime );
         nextNote();
@@ -137,32 +159,27 @@ var play = function() {
         nextNoteTime = audioContext.currentTime;
         scheduler();    // kick off scheduling
         document.getElementById('playButton').innerHTML = "<i class='fa fa-stop'></i>"+"stop";
-        console.log(isPlaying);
     } else {
         window.clearTimeout( timerID );
         document.getElementById('playButton').innerHTML = "<i class='fa fa-play'></i>"+"play";
-        console.log(isPlaying);
     }
 };
 
 // play via spacebar
 var onKeyDown = function(e){
-    switch (e.keyCode) {
-        case 32: //spacebar
-            socket.emit('playpress');
-            play();
-        break;
+    if (e.keyCode === 32 || e.keyCode === 13) {
+        socket.emit('playpress');
+        play();
+    } else if (e.keyCode === 46) {
+        clearSequence();
     }
 };
 
-var resetCanvas = function(e) {
-    // resize the canvas
+var resizeCanvas = function(e) {
     canvas.width = window.innerWidth;
     canvas.height = window.innerWidth/2.8;
     draw(true);
-
-    // make sure we scroll to the top left.
-    window.scrollTo(0,0);
+    window.scrollTo(0,0); // scroll to the top left.
 };
 
 var draw = function(forceDraw) {
@@ -194,17 +211,15 @@ var draw = function(forceDraw) {
                 canvasContext.fillStyle = noteColor[sequence[r][i]];
                 canvasContext.fillRect( box * (i+1), box*(r+1), box*0.9, box*0.9 );
 
-                if (r===0) {
+                if (r === 0) {
                     canvasContext.fillStyle = "grey";
                     canvasContext.fillText( i+1, box * (i+1), box*0.8 );
                 }
             }
         }
 
-
         last16thNoteDrawn = currentNote;
     }
-
     // set up to draw again
     requestAnimFrame(draw);
 };
@@ -221,8 +236,6 @@ var init = function(){
     canvas.height = window.innerWidth/2.8; 
 
     container.appendChild(canvas);  
-    canvasContext.strokeStyle = '#ffffff';
-    canvasContext.lineWidth = 2;
 
 
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -245,8 +258,9 @@ var init = function(){
 
 
  
-    // listen for spacebar
+    // listen for keyboard
     window.addEventListener("keydown", onKeyDown);
+
 
 
     // update note length via slider
@@ -273,20 +287,29 @@ var init = function(){
         var pos = getMousePos(canvas, evt);
         var posX = pos.x;
         var posY = pos.y;
-
         var box = Math.floor(canvas.width/18);
+        var button = 1;
 
-        boundsDetection(posX, posY, box);
+        
+        switch (evt.which) {
+            case 1: button = 1; break; //left click
+            case 3: button = 2; break; //right click
+        }
+        if (window.event.ctrlKey) {
+            button = 2;
+        }
+
+        boundsDetection(posX, posY, box, button);
 
         draw(true);
-        
+
     }, false);
 
 
-    window.onorientationchange = resetCanvas;
-    window.onresize = resetCanvas;
+    window.onorientationchange = resizeCanvas;
+    window.onresize = resizeCanvas;
 
-    //get pattern from database then draw
+    // get pattern from database then draw
     getJSON(function(){
         requestAnimFrame(draw); // start the drawing loop.
         draw(true);

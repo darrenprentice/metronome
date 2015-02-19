@@ -69,13 +69,15 @@ body, html {
 }
 
 #container {
-	display:table-row;
+	width: 100%;
 }
 
 canvas {
 	display: table-row;
+  	margin-right: auto ;
 }
 
-#numUsers {
+#users {
 	margin-left: 5.55%;
+	margin-right: 6.55%;
 }
